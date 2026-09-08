@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	"github.com/kaleb-white/letthemknow/handlers"
+	"github.com/kaleb-white/letthemknow/schemas"
 )
+
 
 func main() {
 	mux := http.NewServeMux()
