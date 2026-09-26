@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"fmt"
 	"strings"
+
+	"github.com/kaleb-white/letthemknow/message-server/log"
 )
 
 func PrettyPrintErrors(errs []error) string {
@@ -33,3 +36,8 @@ func PrettyPrintErrors(errs []error) string {
 
 	return res.String()
 }
+
+func DebugLogUnexpectedValue(source string, expected string, actual string) {
+	log.Log(source, fmt.Sprintf("Got: %s, Expected: %s", actual, expected), log.DEBUG)
+}
+

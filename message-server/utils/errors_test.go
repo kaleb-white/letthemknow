@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/kaleb-white/letthemknow/utils"
+	"github.com/kaleb-white/letthemknow/message-server/utils"
 )
 
 func TestPrettyPrintErrorsNoError(t *testing.T) {

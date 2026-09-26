@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/kaleb-white/letthemknow/handlers"
-	"github.com/kaleb-white/letthemknow/schemas"
+	"github.com/kaleb-white/letthemknow/message-server/handlers"
 )
 
 

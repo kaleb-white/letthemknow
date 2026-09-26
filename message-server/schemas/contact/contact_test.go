@@ -1,14 +1,16 @@
-package schemas_test
+package contact_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
-	"github.com/kaleb-white/letthemknow/schemas"
-	"github.com/kaleb-white/letthemknow/utils"
+	"github.com/kaleb-white/letthemknow/message-server/schemas/contact"
+	"github.com/kaleb-white/letthemknow/message-server/schemas/static"
+	"github.com/kaleb-white/letthemknow/message-server/utils"
 )
 
-var baseContact schemas.Contact = schemas.Contact{
+var baseContact contact.Contact = contact.Contact{
 	Id: 1,
 	Phone: 2223518234,
 	Phone2: 2223518234,
@@ -62,3 +64,39 @@ func TestValidateContactMissingSeveralFields(t *testing.T) {
 	baseContact.Phone = 2223518234
 }
 
+var id uint64
+var ctx = context.Background()
+
+func TestInitializeContactTable(t* testing.T) {
+	err := static.InitializeContacts(ctx)
+	if err != nil {
+		t.Errorf("Error during initialization: %s", err.Error())
+	}
+}
+
+func TestWriteContactGoldenPath(t* testing.T) {
+	localId, err := baseContact.Write(ctx)
+	id = localId
+	if err != nil {
+		t.Errorf("Error during write: %s", err.Error())
+	}
+}
+
+func TestReadContactGoldenPath(t* testing.T) { 
+	copyContact := contact.Contact{}		
+	copyContact.Read(ctx, id)
+	errs, equals := copyContact.Equals(&baseContact)
+	if !equals {
+		t.Errorf("Contacts were not equal: %s", utils.PrettyPrintErrors(errs))
+	}
+}
+
+func TestDeleteContactGoldenPath(t* testing.T) {
+	localId, err := baseContact.Delete(ctx)
+	if err != nil {
+		t.Errorf("Failed to delete contact: %s", err.Error())
+	}
+	if localId != id {
+		t.Errorf("Deleted id did not equal id, was: %d", localId)
+	}
+}

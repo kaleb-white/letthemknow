@@ -12,7 +12,7 @@ func CheckRequiredFieldsArentDefault(i any, fields *[]string, result *[]error) b
 	var nonexistentFields strings.Builder
 	nonexistentFields.WriteString("Nonexistent fields passed: ")
 
-	s := reflect.ValueOf(i).Elem()
+	s := reflect.ValueOf(i)
 	for _, field := range *fields {
 		val := s.FieldByName(field)
 		if !val.IsValid() {

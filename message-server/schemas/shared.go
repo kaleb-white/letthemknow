@@ -1,9 +1,12 @@
 package schemas
 
+import "context"
+
 type Savable interface {
-	Read(Id string) (*Savable, error)
-	Write() (string, error)
-	Delete(Id string) error
+	Initialize(ctx context.Context) error
+	Read(ctx context.Context, Id uint64) (*Savable, error)
+	Write(ctx context.Context) (uint64, error)
+	Delete(ctx context.Context) (string, error)
 }
 
 type Validatable interface {

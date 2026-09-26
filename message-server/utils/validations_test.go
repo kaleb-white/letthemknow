@@ -1,15 +1,14 @@
 package utils_test
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/kaleb-white/letthemknow/schemas"
-	"github.com/kaleb-white/letthemknow/utils"
+	"github.com/kaleb-white/letthemknow/message-server/schemas/contact"
+	"github.com/kaleb-white/letthemknow/message-server/utils"
 )
 
 func CheckRequiredFieldsArentDefaultNoErrors(t *testing.T) {
-	c := schemas.Contact{
+	c := contact.Contact{
 		Id: 123,
 		Phone: 123,
 	}
@@ -25,7 +24,7 @@ func CheckRequiredFieldsArentDefaultNoErrors(t *testing.T) {
 }
 
 func CheckRequiredFieldsArentDefaultSomeErrors(t *testing.T) {
-	c := schemas.Contact{
+	c := contact.Contact{
 		Id: 123,
 		Phone: 123,
 	}
@@ -47,9 +46,7 @@ func CheckRequiredFieldsArentDefaultExpectPanic(t *testing.T) {
 		}
 	}()
 
-	fmt.Println("Succesfully paniced")
-
-	c := schemas.Contact{
+	c := contact.Contact{
 		Id: 123,
 		Phone: 123,
 	}
