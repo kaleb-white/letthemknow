@@ -34,7 +34,7 @@ func (c *Contact) Validate() (bool, []error) {
 
 	// Check requiredFields
 	requiredFields := []string{"Phone", "FirstName", "CreatedBy", "LastUpdatedBy"}
-	wasError := utils.CheckRequiredFieldsArentDefault(c, &requiredFields, &collectedErrors)
+	wasError := utils.CheckRequiredFieldsArentDefault(*c, &requiredFields, &collectedErrors)
 
 	// Check datetimes are current
 	if c.CreatedAtDateTime.Compare(time.Now()) == 1 {

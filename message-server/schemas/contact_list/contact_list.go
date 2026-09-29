@@ -31,7 +31,7 @@ func (c *ContactList) Validate() (bool, []error) {
 
 	// Check required fields
 	requiredFields := []string{"Name", "CreatedBy", "LastUpdatedBy"}
-	wasError := utils.CheckRequiredFieldsArentDefault(c, &requiredFields, &collectedErrors)
+	wasError := utils.CheckRequiredFieldsArentDefault(*c, &requiredFields, &collectedErrors)
 
 	// Check datetimes are current
 	if c.CreatedAtDateTime.Compare(time.Now()) == 1 {
@@ -48,19 +48,19 @@ func (c *ContactList) Validate() (bool, []error) {
 
 var CONTACT_LIST_PREPARED_SQL = map[string]db.PreparedSql{
 	"Read": {
-		OperationName: "contact_read",
+		OperationName: "contact_list_read",
 		RawSql: CONTACT_LIST_READ,
 	},
 	"WriteNew": {
-		OperationName: "contact_write",
+		OperationName: "contact_list_write",
 		RawSql: CONTACT_LIST_WRITE_NEW,
 	},
 	"WriteExisting": {
-		OperationName: "contact_write",
+		OperationName: "contact_list_write",
 		RawSql: CONTACT_LIST_WRITE_EXISTING,
 	},
 	"Delete": {
-		OperationName: "contact_delete",
+		OperationName: "contact_list_delete",
 		RawSql: CONTACT_LIST_DELETE,
 	},
 }
@@ -157,7 +157,7 @@ func (c *ContactList) Write(ctx context.Context) (uint64, error) {
 		log.Log(SOURCE_CONTACT_LIST, fmt.Sprintf("No rows returned after writing contact list %s", c.Name), log.WARNING)
 		return Id, err
 	} else if err != nil {
-		log.Log(SOURCE_CONTACT_LIST, fmt.Sprintf("Failed to execute stmt to write for contact list %s", c.Name, err.Error()), log.ERROR)
+		log.Log(SOURCE_CONTACT_LIST, fmt.Sprintf("Failed to execute stmt to write for contact list %s: %s", c.Name, err.Error()), log.ERROR)
 		return Id, err
 	}
 
@@ -199,3 +199,21 @@ func (c *ContactList) Delete(ctx context.Context) (uint64, error) {
 
 	return Id, nil
 }
+
+// Does not check for Id equality
+func (c *ContactList) Equals(c2 *ContactList) ([]error, bool) {
+	errs := make([]error, 0, 5)
+	wasError := false
+
+	if c2 == nil {
+		wasError = true
+		errs = append(errs, errors.New("nil pointer"))
+		return errs, !wasError
+	}
+
+	fields := []string{"Name", "Description", "ContactList", "CreatedBy", "LastUpdatedBy"}
+	wasError = utils.CheckFieldEquality(*c, *c2, &fields, &errs)
+			
+	return errs, !wasError
+}
+

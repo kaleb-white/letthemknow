@@ -29,7 +29,7 @@ func (c *ContactDetail) Validate() (bool, []error) {
 
 	// Check requiredFields
 	requiredFields := []string{"Phone", "FirstName", "LastName", "LastUpdatedBy"}
-	wasError := utils.CheckRequiredFieldsArentDefault(c, &requiredFields, &collectedErrors)
+	wasError := utils.CheckRequiredFieldsArentDefault(*c, &requiredFields, &collectedErrors)
 
 	if c.LastUpdatedAtDateTime.Compare(time.Now()) == 1 {
 		collectedErrors = append(collectedErrors, errors.New("LastUpdatedAtDateTime must be in the past (use time.Now())."))

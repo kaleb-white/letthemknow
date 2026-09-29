@@ -17,9 +17,15 @@ HELP_STRING="""
 
 BUILD=0
 BUILD_ARGS=
+RUN_ARGS=
 
 while [[ $# -gt 0 ]]; do
   case $1 in
+		-r|--run)
+			RUN_ARGS="$2"
+			shift
+			shift
+			;;
     -b|--build)
       BUILD=1
 		  BUILD_ARGS="$2"
@@ -67,7 +73,7 @@ if [[ $BUILD -eq 1 ]]; then
 				;;
 			api)
 				log "Building api..."
-				docker build -f docker/message-server.Dockerfile . -t $BUILD_TARGET &
+				docker build . -f docker/message-server.Dockerfile --target api -t $BUILD_TARGET &
 				;;
 			nginx)
 				log "Building nginx..."
@@ -84,7 +90,10 @@ wait
 log "Sourcing .env..."
 set -a && source .env && set +a
 
-RUN_TARGETS=("react" "nginx" "api")
+log "Parsing run args $RUN_ARGS..."
+: ${RUN_ARGS:=react,nginx,api}
+RUN_TARGETS=(${RUN_ARGS//,/ })
+
 for RUN_TARGET in "${RUN_TARGETS[@]}"; do
 	case $RUN_TARGET in
 		react)
@@ -112,7 +121,7 @@ for RUN_TARGET in "${RUN_TARGETS[@]}"; do
 			docker run -p ${NGINX_PORT}:${NGINX_PORT} -d --name $RUN_TARGET $RUN_TARGET > /dev/null
 			;;
 		*)
-			warn "Didn't recognize build target $BUILD_TARGET."
+			warn "Didn't recognize run target $RUN_TARGET."
 			;;
 	esac
 done
