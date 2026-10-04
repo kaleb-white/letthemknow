@@ -2,9 +2,12 @@ package log
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"strings"
 	"time"
 )
+
 
 type LogLevel int
 
@@ -15,11 +18,20 @@ const (
 	ERROR
 )
 
+const DEFAULT_LOG_LEVEL LogLevel = INFO
+
 var logLevelName = map[LogLevel]string{
 	DEBUG:   "DEBUG",
 	INFO:    "INFO",
 	WARNING: "WARNING",
 	ERROR:   "ERROR",
+}
+
+var nameLogLevel = map[string]LogLevel{
+	"DEBUG":   DEBUG,
+	"INFO":    INFO,
+	"WARNING": WARNING,
+	"ERROR":   ERROR,
 }
 
 func (ll LogLevel) String() string {
@@ -38,7 +50,41 @@ func determineLogLevel(logLevel []LogLevel) LogLevel {
 	return logLevel[0]
 }
 
-// Defaults to INFO
+
+var stdOut io.Writer = os.Stdout
+var stdErr io.Writer = os.Stdin
+
+// Unless overwritten use INFO as default log level
+var getEnv = func(k string) string {
+	switch k {
+	case "LOG_LEVEL":
+		return "INFO"
+	default:
+		return ""
+	}
+}
+
+func logLevelShouldLog(logLevel LogLevel) bool {
+	// Use env configured string or package default
+	configuredLogLevelString := getEnv("LOG_LEVEL")
+	configuredLogLevel := DEFAULT_LOG_LEVEL
+	if configuredLogLevelString != "" {
+		configuredLogLevel = nameLogLevel[configuredLogLevelString]
+	}
+	
+	return logLevel >= configuredLogLevel
+}
+
+func Configure(stdout, stderr io.Writer, getenv func(string) string) {
+	if stdout != nil {
+		stdOut = stdout
+	}
+	if stderr != nil {
+		stdErr = stderr
+	}
+	getEnv = getenv
+}
+
 func Log(source string, msg string, logLevel ...LogLevel) {
 	ll := determineLogLevel(logLevel)
 	
@@ -56,5 +102,9 @@ func Log(source string, msg string, logLevel ...LogLevel) {
 	fmt.Fprintf(&builtMsg, "%s: %s", source, msg)
 
 	// Write out
-	fmt.Println(builtMsg.String())
+	if determineLogLevel(logLevel) == ERROR {
+		fmt.Fprint(stdErr, builtMsg.String())
+	} else if logLevelShouldLog(determineLogLevel(logLevel)) {
+		fmt.Fprint(stdOut, builtMsg.String())
+	}
 }

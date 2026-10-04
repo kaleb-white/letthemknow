@@ -9,10 +9,9 @@ RUN cd /message-server && go mod download && cd /
 COPY message-server/ /message-server/
 
 # Test 
-FROM scratch AS test 
+FROM alpine:latest AS test 
 
-RUN apk add go && \
-		apk add sqlite
+RUN apk add go sqlite
 
 COPY --from=init /message-server /message-server
 

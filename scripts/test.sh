@@ -12,7 +12,7 @@ error() { if [[ VERBOSE -eq 1 ]]; then echo "[ERROR] $1" >&1; exit 1; fi; }
 TAG=letthemknow/message-server-tests:latest
 
 log "Starting build..."
-docker build . -f docker/message-server.test.Dockerfile --target test -t "$TAG"
+docker build . -f docker/message-server.Dockerfile --target test -t "$TAG"
 
 if [[ $? -ne 0 ]]; then
 	error "Build failed, exiting."

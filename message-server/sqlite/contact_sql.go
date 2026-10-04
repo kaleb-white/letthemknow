@@ -1,4 +1,4 @@
-package contact
+package sqlite
 
 const CONTACT_TABLEDEF string = `
 CREATE TABLE contacts (
@@ -9,6 +9,7 @@ CREATE TABLE contacts (
 	FirstName TEXT,
 	LastName TEXT,
 	FullName TEXT,
+	ListMembership BLOB,
 	CreatedAtDateTime BLOB,
 	CreatedBy TEXT,
 	LastUpdatedAtDateTime BLOB,
@@ -19,13 +20,13 @@ CREATE INDEX pk_idx on contacts(Id);
 `
 
 const CONTACT_WRITE_NEW string = `
-INSERT INTO contacts(Phone, Phone2, Phone3, FirstName, LastName, FullName, CreatedAtDateTime, CreatedBy, LastUpdatedAtDateTime, LastUpdatedBy, Org)
+INSERT INTO contacts(Phone, Phone2, Phone3, FirstName, LastName, FullName, ListMembership, CreatedAtDateTime, CreatedBy, LastUpdatedAtDateTime, LastUpdatedBy, Org)
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	RETURNING Id;
 `
 
 const CONTACT_WRITE_EXISTING string = `
-INSERT INTO contacts(Id, Phone, Phone2, Phone3, FirstName, LastName, FullName, CreatedAtDateTime, CreatedBy, LastUpdatedAtDateTime, LastUpdatedBy, Org)
+INSERT INTO contacts(Id, Phone, Phone2, Phone3, FirstName, LastName, FullName, ListMembership, CreatedAtDateTime, CreatedBy, LastUpdatedAtDateTime, LastUpdatedBy, Org)
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	ON CONFLICT(Id) DO UPDATE SET
 		Id=excluded.Id,
@@ -34,6 +35,7 @@ INSERT INTO contacts(Id, Phone, Phone2, Phone3, FirstName, LastName, FullName, C
 		Phone3=excluded.Phone3,
 		FirstName=excluded.FirstName,
 		LastName=excluded.LastName,
+		ListMembership=excluded.ListMembership,
 		FullName=excluded.FullName,
 		CreatedAtDateTime=excluded.CreatedAtDateTime,
 		CreatedBy=excluded.CreatedBy,

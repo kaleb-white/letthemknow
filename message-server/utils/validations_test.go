@@ -5,17 +5,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kaleb-white/letthemknow/message-server/schemas/contact"
-	cd "github.com/kaleb-white/letthemknow/message-server/schemas/contact_detail"
+	"github.com/kaleb-white/letthemknow/message-server/models"
 	"github.com/kaleb-white/letthemknow/message-server/utils"
 )
 
 func TestCheckFieldEqualityNoErrors(t *testing.T) {
-	c1 := contact.Contact{
+	c1 := models.Contact{
 		Id: 123,
 		Phone: 456,
 	}
-	c2 := contact.Contact{
+	c2 := models.Contact{
 		Id: 123,
 		Phone: 456,
 	}
@@ -31,12 +30,12 @@ func TestCheckFieldEqualityNoErrors(t *testing.T) {
 
 func TestCheckFieldEqualityNoErrorsWithTimeField(t *testing.T) {
 	now := time.Now()
-	c1 := contact.Contact{
+	c1 := models.Contact{
 		Id: 789,
 		Phone: 101112,
 		LastUpdatedAtDateTime: now,
 	}
-	c2 := contact.Contact{
+	c2 := models.Contact{
 		Id: 789,
 		Phone: 101112,
 		LastUpdatedAtDateTime: now,
@@ -54,12 +53,12 @@ func TestCheckFieldEqualityNoErrorsWithTimeField(t *testing.T) {
 
 func TestCheckFieldEqualityTimeWrong(t *testing.T) {
 	now := time.Now()
-	c1 := contact.Contact{
+	c1 := models.Contact{
 		Id: 789,
 		Phone: 101112,
 		LastUpdatedAtDateTime: now,
 	}
-	c2 := contact.Contact{
+	c2 := models.Contact{
 		Id: 789,
 		Phone: 101112,
 		LastUpdatedAtDateTime: time.Date(2025, time.January, 0, 0, 0, 0, 0, time.UTC),
@@ -116,11 +115,11 @@ func TestCheckFieldEqualitySliceFail(t *testing.T) {
 }
 
 func TestCheckFieldEqualityDifferentStructs(t *testing.T) {
-	c1 := contact.Contact{
+	c1 := models.Contact{
 		Id: 123,
 		Phone: 123,
 	}
-	c2 := cd.ContactDetail{
+	c2 := models.ContactDetail{
 		Id: 123,
 		Phone: 123,
 	}
@@ -140,11 +139,11 @@ func TestCheckFieldEqualityShouldPanicNonexistent(t *testing.T) {
 			t.Errorf("Should've panic, defer fired without error to recover")
 		}
 	}()
-	c1 := contact.Contact{
+	c1 := models.Contact{
 		Id: 123,
 		Phone: 123,
 	}
-	c2 := contact.Contact{
+	c2 := models.Contact{
 		Id: 123,
 		Phone: 123,
 	}
@@ -155,7 +154,7 @@ func TestCheckFieldEqualityShouldPanicNonexistent(t *testing.T) {
 }
 
 func TestCheckRequiredFieldsArentDefaultNoErrors(t *testing.T) {
-	c := contact.Contact{
+	c := models.Contact{
 		Id: 123,
 		Phone: 123,
 	}
@@ -172,7 +171,7 @@ func TestCheckRequiredFieldsArentDefaultNoErrors(t *testing.T) {
 }
 
 func TestCheckRequiredFieldsArentDefaultSomeErrors(t *testing.T) {
-	c := contact.Contact{
+	c := models.Contact{
 		Id: 123,
 		Phone: 123,
 	}

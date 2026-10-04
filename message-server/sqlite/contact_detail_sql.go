@@ -1,4 +1,4 @@
-package cd
+package sqlite
 
 const CONTACT_DETAIL_READ string = `
 SELECT Id, Phone, FirstName, LastName, LastUpdatedAtDateTime, LastUpdatedBy, Org FROM contacts  

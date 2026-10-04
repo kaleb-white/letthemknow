@@ -1,4 +1,4 @@
-package cl
+package sqlite
 
 const CONTACT_LIST_TABLEDEF string = `
 CREATE TABLE contact_lists (
