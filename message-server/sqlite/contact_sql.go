@@ -21,13 +21,13 @@ CREATE INDEX pk_idx on contacts(Id);
 
 const CONTACT_WRITE_NEW string = `
 INSERT INTO contacts(Phone, Phone2, Phone3, FirstName, LastName, FullName, ListMembership, CreatedAtDateTime, CreatedBy, LastUpdatedAtDateTime, LastUpdatedBy, Org)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	RETURNING Id;
 `
 
 const CONTACT_WRITE_EXISTING string = `
 INSERT INTO contacts(Id, Phone, Phone2, Phone3, FirstName, LastName, FullName, ListMembership, CreatedAtDateTime, CreatedBy, LastUpdatedAtDateTime, LastUpdatedBy, Org)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	ON CONFLICT(Id) DO UPDATE SET
 		Id=excluded.Id,
 		Phone=excluded.Phone,

@@ -1,4 +1,4 @@
-package main
+package middleware 
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 // Requires slugs to be present and positive integers
-func HasSlugs(slugs []string, h http.HandlerFunc) http.HandlerFunc {
+func HasSlugs(h http.Handler, slugs []string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		wasError := false
 		errs := []string{}
@@ -50,6 +50,6 @@ func HasSlugs(slugs []string, h http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		h(w, r)
+		h.ServeHTTP(w, r)
 	})
 }

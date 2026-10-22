@@ -8,7 +8,8 @@ import (
 )
 
 type HttpError struct {
-	error string
+	Error string
+	Status int
 }
 
 const SOURCE_HTTP_ERROR string = "http_error"
@@ -16,7 +17,8 @@ const SOURCE_HTTP_ERROR string = "http_error"
 func CreateHttpError(error string, status int) HttpError {
 	log.Log(SOURCE_HTTP_ERROR, fmt.Sprintf("%d: %s", status, error), log.DEBUG)
 	e := HttpError{
-		error: error,
+		Error: error,
+		Status: status,
 	}
 	return e
 }

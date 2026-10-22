@@ -70,7 +70,7 @@ func TestContactStore(t *testing.T) {
 		expect1 := copyContact.ListMembership[0]
 		expect2 := copyContact.ListMembership[1]
 		if expect1 != 1 || expect2 != 2 {
-			t.Errorf("Unmarshaling failed, expected 1 and 2 and got: %d, %d")
+			t.Errorf("Unmarshaling failed, expected 1 and 2 and got: %d, %d", expect1, expect2)
 		} 
 	})
 

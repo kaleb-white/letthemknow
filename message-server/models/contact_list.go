@@ -1,9 +1,9 @@
 package models
 
 import (
+	"context"
 	"errors"
 	"time"
-	"context"
 
 	"github.com/kaleb-white/letthemknow/message-server/utils"
 )
@@ -24,8 +24,10 @@ type ContactListStore interface {
 	Read(context.Context, uint64) (ContactList, utils.StoreError)
 	Write(context.Context, *ContactList) (uint64, utils.StoreError)
 	Delete(context.Context, uint64) (uint64, utils.StoreError)
+	ReadTimeout(func (string) string) time.Duration
+	WriteTimeout(func (string) string) time.Duration
+	DeleteTimeout(func (string) string) time.Duration
 }
-
 
 func (c *ContactList) SetId(Id uint64) {
 	c.Id = Id

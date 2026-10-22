@@ -12,7 +12,7 @@ func PrettyPrintErrors(errs []error) string {
 
 	switch numErrors {
 	case 0: 
-		return ""
+		return "No errors"
 	case 1:
 		return errs[0].Error()
 	}

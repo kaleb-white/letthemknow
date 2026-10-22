@@ -108,7 +108,7 @@ for RUN_TARGET in "${RUN_TARGETS[@]}"; do
 				log "$RUN_TARGET not found, starting..."
 			fi
 			
-			docker run -p ${API_PORT}:${API_PORT} -d --name $RUN_TARGET $RUN_TARGET > /dev/null
+			docker run -p "${API_PORT}:${API_PORT}" -d --name $RUN_TARGET --env-file .env $RUN_TARGET > /dev/null
 			;;
 		nginx)
 			log "Running nginx..."
@@ -118,10 +118,11 @@ for RUN_TARGET in "${RUN_TARGETS[@]}"; do
 			else
 				log "$RUN_TARGET not found, starting..."
 			fi
-			docker run -p ${NGINX_PORT}:${NGINX_PORT} -d --name $RUN_TARGET $RUN_TARGET > /dev/null
+			docker run -p ${NGINX_PORT}:${NGINX_PORT} -d --name $RUN_TARGET --env-file .env $RUN_TARGET > /dev/null
 			;;
 		*)
 			warn "Didn't recognize run target $RUN_TARGET."
 			;;
 	esac
 done
+

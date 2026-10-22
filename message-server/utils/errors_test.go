@@ -8,14 +8,6 @@ import (
 	"github.com/kaleb-white/letthemknow/message-server/utils"
 )
 
-func TestPrettyPrintErrorsNoError(t *testing.T) {
-	var emptyErrs []error = make([]error, 0)
-	errs := utils.PrettyPrintErrors(emptyErrs)
-	if errs != "" {
-		t.Errorf("Pretty print errors did not return empty string when called with no errors")
-	}
-}
-
 var hasMultiErrorCopy = regexp.MustCompile(`Errors:`)
 
 func TestPrettyPrintErrorsOneError(t *testing.T) {

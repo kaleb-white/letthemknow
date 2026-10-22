@@ -10,12 +10,12 @@ import (
 
 const SOURCE_CONTACT_HANDLERS string = "contact_handler"
 
-func HandleReadContact(contactStore *models.ContactStore, getenv func(string) string) http.Handler {
-	return genericReadHandler(contactStore, getenv, SOURCE_CONTACT_HANDLERS, "Contact")
+func HandleReadContact(contactStore models.ContactStore, getenv func(string) string) http.Handler {
+	return GenericReadHandler(contactStore, getenv, SOURCE_CONTACT_HANDLERS, "Contact")
 }
 
-func HandleWriteContact(contactStore *models.ContactStore, getenv func(string) string) http.Handler {
-	return genericWriteHandler(
+func HandleWriteContact(contactStore models.ContactStore, getenv func(string) string) http.Handler {
+	return GenericWriteHandler(
 		contactStore, 
 		getenv, 
 		SOURCE_CONTACT_HANDLERS, 
@@ -30,8 +30,8 @@ func HandleWriteContact(contactStore *models.ContactStore, getenv func(string) s
 	)
 }
 
-func HandleWriteContactById(contactStore *models.ContactStore, getenv func(string) string) http.Handler {
-	return genericWriteByIdHandler(
+func HandleWriteContactById(contactStore models.ContactStore, getenv func(string) string) http.Handler {
+	return GenericWriteByIdHandler(
 		contactStore, 
 		getenv, 
 		SOURCE_CONTACT_HANDLERS, 
@@ -47,6 +47,6 @@ func HandleWriteContactById(contactStore *models.ContactStore, getenv func(strin
 
 }
 
-func HandleDeleteContact(contactStore *models.ContactStore, getenv func(string) string) http.Handler {
-	return genericDeleteHandler[models.Contact](contactStore, getenv, SOURCE_CONTACT_HANDLERS, "Contact")
+func HandleDeleteContact(contactStore models.ContactStore, getenv func(string) string) http.Handler {
+	return GenericDeleteHandler[models.Contact](contactStore, getenv, SOURCE_CONTACT_HANDLERS, "Contact")
 }

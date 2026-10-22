@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/kaleb-white/letthemknow/message-server/log"
@@ -38,13 +37,9 @@ var CONTACT_PREPARED_SQL = map[string]PreparedSql{
 type ContactStore struct {
 }
 
-var initContactOnce sync.Once
-
-func (_ *ContactStore) Init(ctx context.Context) error {
+func (_ ContactStore) Init(ctx context.Context) error {
 	var err error
-	initContactOnce.Do(func () {
-		err = InitializeTable(ctx, CONTACT_TABLEDEF, "contact table")
-	})
+	err = InitializeTable(ctx, CONTACT_TABLEDEF, "contact table")
 	if err != nil {
 		return err
 	}
@@ -52,7 +47,7 @@ func (_ *ContactStore) Init(ctx context.Context) error {
 	return nil
 }
 
-func (_ *ContactStore) Read(ctx context.Context, Id uint64) (models.Contact, utils.StoreError) {
+func (_ ContactStore) Read(ctx context.Context, Id uint64) (models.Contact, utils.StoreError) {
 	c := models.Contact{}
 
 	// Connect
@@ -103,7 +98,7 @@ func (_ *ContactStore) Read(ctx context.Context, Id uint64) (models.Contact, uti
 	return c, nil
 }
 
-func (_ *ContactStore) Write(ctx context.Context, c *models.Contact) (uint64, utils.StoreError) {
+func (_ ContactStore) Write(ctx context.Context, c *models.Contact) (uint64, utils.StoreError) {
 	// Connect
 	conn, err := GetConnection()
 	if err != nil {
@@ -170,7 +165,7 @@ func (_ *ContactStore) Write(ctx context.Context, c *models.Contact) (uint64, ut
 	return Id, nil
 }
 
-func (_ *ContactStore) Delete(ctx context.Context, Id uint64) (uint64, utils.StoreError) {
+func (_ ContactStore) Delete(ctx context.Context, Id uint64) (uint64, utils.StoreError) {
 	// Connect
 	conn, err := GetConnection()
 	if err != nil {
@@ -184,8 +179,8 @@ func (_ *ContactStore) Delete(ctx context.Context, Id uint64) (uint64, utils.Sto
 	preparedSql := CONTACT_PREPARED_SQL["Delete"]
 	stmt, err := preparedSql.GetPreparedStatement(ctx, conn)
 	if err != nil {
-		e := fmt.Sprintf("Failed to prepare stmt to delete contact for id %d: %s", Id, err.Error()
-		log.Log(SQLITE_CONTACT_STORE, )e, log.ERROR)
+		e := fmt.Sprintf("Failed to prepare stmt to delete contact for id %d: %s", Id, err.Error())
+		log.Log(SQLITE_CONTACT_STORE, e, log.ERROR)
 		return 0, utils.NewStoreError(e, http.StatusInternalServerError) 
 	}
 
@@ -201,10 +196,22 @@ func (_ *ContactStore) Delete(ctx context.Context, Id uint64) (uint64, utils.Sto
 		log.Log(SQLITE_CONTACT_STORE, e, log.ERROR)
 		return 0, utils.NewStoreError(e, http.StatusInternalServerError) 
 	} else if err != nil {
-		e := fmt.Sprintf("Failed to execute stmt to read contact for id %d: %s", Id, err.Error()
-		log.Log(SQLITE_CONTACT_STORE, )e, log.ERROR)
+		e := fmt.Sprintf("Failed to execute stmt to read contact for id %d: %s", Id, err.Error())
+		log.Log(SQLITE_CONTACT_STORE, e, log.ERROR)
 		return 0, utils.NewStoreError(e, http.StatusInternalServerError) 
 	}
 
 	return Id, nil
+}
+
+func (_ ContactStore) ReadTimeout(getenv func (string) string) time.Duration{
+	return utils.ConfiguredDuration("SQLITE_READ_TIMEOUT", getenv)
+}
+
+func (_ ContactStore) WriteTimeout(getenv func (string) string) time.Duration{
+	return utils.ConfiguredDuration("SQLITE_WRITE_TIMEOUT", getenv)
+}
+
+func (_ ContactStore) DeleteTimeout(getenv func (string) string) time.Duration{
+	return utils.ConfiguredDuration("SQLITE_DELETE_TIMEOUT", getenv)
 }

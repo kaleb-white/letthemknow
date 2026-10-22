@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/kaleb-white/letthemknow/message-server/log"
 	"github.com/kaleb-white/letthemknow/message-server/models"
@@ -26,12 +27,12 @@ var CONTACT_DETAIL_PREPARED_SQL = map[string]PreparedSql{
 
 type ContactDetailStore struct {}
 
-func (_ *ContactDetailStore) Init(ctx context.Context) error {
+func (_ ContactDetailStore) Init(ctx context.Context) error {
 	contactStore := ContactStore{}
 	return contactStore.Init(ctx)
 }
 
-func (_ *ContactDetailStore) Read(ctx context.Context, Id uint64) (models.ContactDetail, utils.StoreError) {
+func (_ ContactDetailStore) Read(ctx context.Context, Id uint64) (models.ContactDetail, utils.StoreError) {
 	c := models.ContactDetail{}
 
 	// Connect
@@ -75,7 +76,7 @@ func (_ *ContactDetailStore) Read(ctx context.Context, Id uint64) (models.Contac
 	return c, nil
 }
 
-func (_ *ContactDetailStore) Delete(ctx context.Context, Id uint64) (uint64, utils.StoreError) {
+func (_ ContactDetailStore) Delete(ctx context.Context, Id uint64) (uint64, utils.StoreError) {
 	// Connect
 	conn, err := GetConnection()
 	if err != nil {
@@ -113,3 +114,16 @@ func (_ *ContactDetailStore) Delete(ctx context.Context, Id uint64) (uint64, uti
 
 	return Id, nil
 }
+
+func (_ ContactDetailStore) ReadTimeout(getenv func (string) string) time.Duration{
+	return utils.ConfiguredDuration("SQLITE_READ_TIMEOUT", getenv)
+}
+
+func (_ ContactDetailStore) WriteTimeout(getenv func (string) string) time.Duration{
+	return utils.ConfiguredDuration("SQLITE_WRITE_TIMEOUT", getenv)
+}
+
+func (_ ContactDetailStore) DeleteTimeout(getenv func (string) string) time.Duration{
+	return utils.ConfiguredDuration("SQLITE_DELETE_TIMEOUT", getenv)
+}
+

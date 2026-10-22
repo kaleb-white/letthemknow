@@ -7,7 +7,7 @@ import (
 )
 
 const key string = "userAttribution"
-const dfault string = "Unknown"
+const dfault string = "unknown"
 
 func SetAttribution(ctx context.Context, attribution string) context.Context {
 	if attribution == "" {
@@ -31,5 +31,10 @@ func GetAttribution(ctx context.Context) (s string) {
 }
 
 func AttributeLog(msg string, r *http.Request) string {
-	return fmt.Sprintf(" %s for user %s at addr %s", msg, GetAttribution(r.Context()), r.RemoteAddr)
+
+	if r.RemoteAddr != "" {
+		return fmt.Sprintf("%s while responding to user %s at addr %s", msg, GetAttribution(r.Context()), r.RemoteAddr)
+	} else {
+		return fmt.Sprintf("%s while responding to user %s", msg, GetAttribution(r.Context()))
+	}
 }

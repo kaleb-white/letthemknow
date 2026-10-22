@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/kaleb-white/letthemknow/message-server/log"
@@ -38,13 +37,9 @@ var CONTACT_LIST_PREPARED_SQL = map[string]PreparedSql{
 type ContactListStore struct {
 }
 
-var onceContactList sync.Once
-
-func (_ *ContactListStore) Init(ctx context.Context) error {
+func (_ ContactListStore) Init(ctx context.Context) error {
 	var err error
-	onceContactList.Do(func () {
-		err = InitializeTable(ctx, CONTACT_LIST_TABLEDEF, "contact list table")
-	})
+	err = InitializeTable(ctx, CONTACT_LIST_TABLEDEF, "contact list table")
 	if err != nil {
 		return err
 	}
@@ -52,7 +47,7 @@ func (_ *ContactListStore) Init(ctx context.Context) error {
 	return nil
 }
 
-func (_ *ContactListStore) Read(ctx context.Context, Id uint64) (models.ContactList, utils.StoreError) {
+func (_ ContactListStore) Read(ctx context.Context, Id uint64) (models.ContactList, utils.StoreError) {
 	c := models.ContactList{} 
 
 	// Connect
@@ -103,7 +98,7 @@ func (_ *ContactListStore) Read(ctx context.Context, Id uint64) (models.ContactL
 	return c, nil
 }
 
-func (_ *ContactListStore) Write(ctx context.Context, c *models.ContactList) (uint64, utils.StoreError) {
+func (_ ContactListStore) Write(ctx context.Context, c *models.ContactList) (uint64, utils.StoreError) {
 	// Connect
 	conn, err := GetConnection()
 	if err != nil {
@@ -165,7 +160,7 @@ func (_ *ContactListStore) Write(ctx context.Context, c *models.ContactList) (ui
 	return Id, nil
 }
 
-func (_ *ContactListStore) Delete(ctx context.Context, Id uint64) (uint64, utils.StoreError) {
+func (_ ContactListStore) Delete(ctx context.Context, Id uint64) (uint64, utils.StoreError) {
 	// Connect
 	conn, err := GetConnection()
 	if err != nil {
@@ -203,3 +198,16 @@ func (_ *ContactListStore) Delete(ctx context.Context, Id uint64) (uint64, utils
 
 	return Id, nil
 }
+
+func (_ ContactListStore) ReadTimeout(getenv func (string) string) time.Duration{
+	return utils.ConfiguredDuration("SQLITE_READ_TIMEOUT", getenv)
+}
+
+func (_ ContactListStore) WriteTimeout(getenv func (string) string) time.Duration{
+	return utils.ConfiguredDuration("SQLITE_WRITE_TIMEOUT", getenv)
+}
+
+func (_ ContactListStore) DeleteTimeout(getenv func (string) string) time.Duration{
+	return utils.ConfiguredDuration("SQLITE_DELETE_TIMEOUT", getenv)
+}
+

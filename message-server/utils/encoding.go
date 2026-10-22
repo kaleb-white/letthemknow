@@ -24,8 +24,21 @@ func Encode[T any](w http.ResponseWriter, r *http.Request, status int, v T) erro
 	return nil
 }
 
-func Decode[T any](r *http.Request) (T, error) {
+func Decode[T any](r *http.Request) (t T, e error) {
+	defer func() {
+		if r := recover(); r != nil {
+			e = fmt.Errorf("Body decode failed: %s", r)
+		}
+	}()
+
 	var v T
+
+	if r.Body == nil {
+		s := fmt.Sprintf("No body in request for %s", r.URL.RawPath)
+		log.Log(SOURCE_ENCODER, s, log.DEBUG)
+		return v, errors.New(s)
+	}
+
 	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
 		s := fmt.Sprintf("Failed to decode json: %s", err.Error())
 		log.Log(SOURCE_ENCODER, s, log.DEBUG)

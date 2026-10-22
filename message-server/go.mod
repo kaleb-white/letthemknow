@@ -2,7 +2,10 @@ module github.com/kaleb-white/letthemknow/message-server
 
 go 1.26.3
 
-require modernc.org/sqlite v1.58.0
+require (
+	golang.org/x/tools v0.48.0
+	modernc.org/sqlite v1.58.0
+)
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect

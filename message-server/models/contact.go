@@ -29,6 +29,9 @@ type ContactStore interface {
 	Read(context.Context, uint64) (Contact, utils.StoreError)
 	Write(context.Context, *Contact) (uint64, utils.StoreError)
 	Delete(context.Context, uint64) (uint64, utils.StoreError)
+	ReadTimeout(func (string) string) time.Duration
+	WriteTimeout(func (string) string) time.Duration
+	DeleteTimeout(func (string) string) time.Duration
 }
 
 func (c *Contact) SetId(Id uint64) {

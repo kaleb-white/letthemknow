@@ -11,20 +11,23 @@ import (
 	"github.com/kaleb-white/letthemknow/message-server/utils"
 )
 
-func genericReadHandler[M any, S models.ReadEnabledStore[M]](store *S, getenv func(string) string, logSource string, typeName string) http.Handler {
+func GenericReadHandler[
+	N any, 
+	S models.ReadEnabledStore[N],
+](
+	store S, 
+	getenv func(string) string, 
+	logSource string, 
+	typeName string,
+) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			s := *store
-
 			// This should already be checked by HasSlugs middleware
 			id, _ := strconv.ParseUint(r.PathValue("id"), 10, 64)
 
 			// Perform request to store
-			timeoutDur := utils.ConfiguredDuration("SQLITE_READ_TIMEOUT", getenv)
-			ctx, cancel := context.WithTimeout(context.Background(), timeoutDur)
-			defer cancel()
-			obj, err := s.Read(ctx, id)
-
+			obj, err := ReadFromStoreWithContext(id, store, getenv)
+			
 			// Parse result
 			if err != nil {
 				e := fmt.Sprintf("Failure while reading %s: %s", typeName, err.Error())
@@ -45,23 +48,29 @@ func genericReadHandler[M any, S models.ReadEnabledStore[M]](store *S, getenv fu
 	)
 }
 
-func genericDeleteHandler[M any, S models.DeleteEnabledStore[M]](store *S, getenv func(string) string, logSource string, typeName string) http.Handler {
+func GenericDeleteHandler[
+	N any, 
+	S models.DeleteEnabledStore[N],
+](
+	store S, 
+	getenv func(string) string, 
+	logSource string, 
+	typeName string,
+) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			cs := *store
-
 			// This should already be checked by HasSlugs middleware
 			id, _ := strconv.ParseUint(r.PathValue("id"), 10, 64)
 
 			// Perform request to store
 			timeoutDur := utils.ConfiguredDuration("SQLITE_DELETE_TIMEOUT", getenv)
-			ctx, cancel := context.WithTimeout(context.Background(), timeoutDur) 
+			ctx, cancel := context.WithTimeout(context.Background(), timeoutDur)
 			defer cancel()
-			obj, err := cs.Delete(ctx, id)
+			obj, err := store.Delete(ctx, id)
 
 			// Parse result
 			if err != nil {
-				e := fmt.Sprintf("Failure while reading %s: %s", typeName, err.Error())				
+				e := fmt.Sprintf("Failure while reading %s: %s", typeName, err.Error())
 				log.Log(logSource, utils.AttributeLog(e, r), log.INFO)
 				utils.EncodeHttpError(err.Error(), err.Status(), w, r)
 				return
@@ -80,21 +89,19 @@ func genericDeleteHandler[M any, S models.DeleteEnabledStore[M]](store *S, geten
 
 }
 
-func genericWriteHandler[
-	N any, 
-	M models.IdentifiableValidatable[N], 
+func GenericWriteHandler[
+	N any,
+	M models.IdentifiableValidatable[N],
 	S models.WriteEnabledStore[N],
 ](
-	store *S, 
-	getenv func(string) string, 
-	logSource string, 
-	typeName string, 
+	store S,
+	getenv func(string) string,
+	logSource string,
+	typeName string,
 	preValidation func(M, *http.Request),
 ) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			s := *store
-
 			// Decode JSON body
 			obj, decodeErr := utils.Decode[N](r)
 			if decodeErr != nil {
@@ -109,17 +116,14 @@ func genericWriteHandler[
 
 			// Validate input
 			var objPtr M = &obj
-			if pass, errs := objPtr.Validate(); !pass {
+			if err, errs := objPtr.Validate(); err {
 				e := utils.PrettyPrintErrors(errs)
 				log.Log(logSource, utils.AttributeLog(e, r), log.INFO)
-				utils.EncodeHttpError(e, http.StatusBadRequest, w, r)	
+				utils.EncodeHttpError(e, http.StatusBadRequest, w, r)
 				return
 			}
 
-			timeoutDur := utils.ConfiguredDuration("SQLITE_WRITE_TIMEOUT", getenv)
-			ctx, cancel := context.WithTimeout(context.Background(), timeoutDur) 
-			defer cancel()
-			Id, err := s.Write(ctx, &obj)
+			Id, err := WriteToStoreWithContext(objPtr, store, getenv)
 			if err != nil {
 				e := err.Error()
 				log.Log(logSource, utils.AttributeLog(e, r), log.INFO)
@@ -127,10 +131,10 @@ func genericWriteHandler[
 				return
 			}
 
-			rObj := utils.WriteId{
+			resp := models.IdResponse{
 				Id: Id,
-			}
-			encodeErr := utils.Encode(w, r, http.StatusOK, rObj)
+			}		
+			encodeErr := utils.Encode(w, r, http.StatusOK, resp)
 			if encodeErr != nil {
 				e := "Failed to encode return object"
 				log.Log(logSource, utils.AttributeLog(e, r), log.INFO)
@@ -142,21 +146,19 @@ func genericWriteHandler[
 	)
 }
 
-func genericWriteByIdHandler[
-	N any, 
-	M models.IdentifiableValidatable[N],  
+func GenericWriteByIdHandler[
+	N any,
+	M models.IdentifiableValidatable[N],
 	S models.WriteEnabledStore[N],
 ](
-	store *S, 
-	getenv func(string) string, 
-	logSource string, 
-	typeName string, 
+	store S,
+	getenv func(string) string,
+	logSource string,
+	typeName string,
 	preValidation func(*N, *http.Request),
 ) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			s := *store
-
 			// This should already be checked by HasSlugs middleware
 			id, _ := strconv.ParseUint(r.PathValue("id"), 10, 64)
 
@@ -174,20 +176,17 @@ func genericWriteByIdHandler[
 
 			// Validate input
 			var objPtr M = &obj
-			if pass, errs := objPtr.Validate(); !pass {
+			if err, errs := objPtr.Validate(); err {
 				e := utils.PrettyPrintErrors(errs)
 				log.Log(logSource, utils.AttributeLog(e, r), log.INFO)
-				utils.EncodeHttpError(e, http.StatusBadRequest, w, r)	
+				utils.EncodeHttpError(e, http.StatusBadRequest, w, r)
 				return
 			}
 
 			// Overwrite id for store
 			objPtr.SetId(id)
-			
-			timeoutDur := utils.ConfiguredDuration("SQLITE_WRITE_TINEOUT", getenv)
-			ctx, cancel := context.WithTimeout(context.Background(), timeoutDur) 
-			defer cancel()
-			Id, err := s.Write(ctx, objPtr)
+
+			Id, err := WriteToStoreWithContext(objPtr, store, getenv)
 			if err != nil {
 				e := err.Error()
 				log.Log(logSource, utils.AttributeLog(e, r), log.INFO)
@@ -195,7 +194,7 @@ func genericWriteByIdHandler[
 				return
 			}
 
-			rObj := utils.WriteId{
+			rObj := models.IdResponse{
 				Id: Id,
 			}
 			encodeErr := utils.Encode(w, r, http.StatusOK, rObj)

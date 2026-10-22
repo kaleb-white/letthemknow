@@ -99,7 +99,7 @@ func Log(source string, msg string, logLevel ...LogLevel) {
 	fmt.Fprintf(&builtMsg, " [%s] ", ll.String())
 
 	// Write source
-	fmt.Fprintf(&builtMsg, "%s: %s", source, msg)
+	fmt.Fprintf(&builtMsg, "src %s: %s\n", source, msg)
 
 	// Write out
 	if determineLogLevel(logLevel) == ERROR {

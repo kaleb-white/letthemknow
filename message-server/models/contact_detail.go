@@ -23,6 +23,9 @@ type ContactDetailStore interface {
 	Init(context.Context) error
 	Read(context.Context, uint64) (ContactDetail, utils.StoreError)
 	Delete(context.Context, uint64) (uint64, utils.StoreError)
+	ReadTimeout(func (string) string) time.Duration
+	WriteTimeout(func (string) string) time.Duration
+	DeleteTimeout(func (string) string) time.Duration
 }
 
 func (c *ContactDetail) SetId(Id uint64) {

@@ -48,7 +48,7 @@ func CheckFieldEquality(this any, other any, fields *[]string, result *[]error) 
 		case reflect.Invalid, reflect.Chan, reflect.Func, reflect.Interface: 
 			wasUnsupportedPanic = true
 			fmt.Fprintf(&unsupportedKinds, "%s ", thisField.Type())
-		
+
 		case reflect.Struct:
 			if isTimeStruct(thisField) && !doTimeValsMatch(thisField, otherField) {
 				wasError = true
